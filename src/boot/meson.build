@@ -10,6 +10,8 @@ libefitest = static_library(
                 'chid.c',
                 'devicetree.c',
                 'efi-string.c',
+                'efifirmware.c',
+                'pe.c',
         ),
         build_by_default : false,
         include_directories : [

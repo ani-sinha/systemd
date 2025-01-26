@@ -26,6 +26,14 @@ typedef struct PeSectionVector {
         uint64_t file_offset;   /* Offset on disk, relative to beginning of file */
 } PeSectionVector;
 
+#if SD_BOOT
+#define PE_SECTION_DATA_FROM_HEADER(base, header) ((const uint8_t *) SIZE_TO_PTR(base) + (header)->VirtualAddress)
+#define PE_SECTION_DATA_FROM_VECTOR(base, entry) ((const uint8_t *) SIZE_TO_PTR(base) + (entry)->memory_offset)
+#else
+#define PE_SECTION_DATA_FROM_HEADER(base, header) ((const uint8_t *) SIZE_TO_PTR(base) + (header)->PointerToRawData)
+#define PE_SECTION_DATA_FROM_VECTOR(base, entry) ((const uint8_t *) SIZE_TO_PTR(base) + (entry)->file_offset)
+#endif
+
 static inline bool PE_SECTION_VECTOR_IS_SET(const PeSectionVector *v) {
         return v && v->memory_size != 0;
 }
@@ -35,10 +43,12 @@ EFI_STATUS pe_section_table_from_base(
                 const PeSectionHeader **ret_section_table,
                 size_t *ret_n_section_table);
 
+#if SD_BOOT
 EFI_STATUS pe_section_table_from_file(
                 EFI_FILE *handle,
                 PeSectionHeader **ret_section_table,
                 size_t *ret_n_section_table);
+#endif
 
 EFI_STATUS pe_locate_profile_sections(
                 const PeSectionHeader section_table[],
